@@ -154,6 +154,7 @@ class Router extends Emitter {
           }
         }
         this.emit(Router.Event.TERMINAL_LEAVED, signal.hubId + '.' + signal.terminalId, signal);
+
         break;
     }
   }

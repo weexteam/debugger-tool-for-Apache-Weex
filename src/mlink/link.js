@@ -20,6 +20,9 @@ const init = () => {
   debuggerRouter.link(runtimeProxyHub);
   mlink.load(__dirname);
 };
+entryHub.on('empty', function () {
+  console.log('哈哈哈');
+});
 module.exports = {
   init
 };

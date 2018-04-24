@@ -3,8 +3,10 @@ const Router = require('./router');
 const Message = require('./message');
 const { logger } = require('../../../util/logger');
 const _hubInstances = {};
-class Hub {
+const Emitter = require('./emitter');
+class Hub extends Emitter {
   constructor (id) {
+    super();
     const self = this;
     if (_hubInstances[id]) {
       return _hubInstances[id];
@@ -46,6 +48,10 @@ class Hub {
     }
   }
 
+  empty () {
+    return Object.keys(this.terminalMap).length === 0;
+  }
+
   setChannel (terminalId, channelId) {
     if (this.terminalMap[terminalId]) {
       this.terminalMap[terminalId].channelId = channelId;
@@ -66,6 +72,9 @@ class Hub {
           channelId: terminal.channelId
         });
         terminal = null;
+        if (this.empty()) {
+          this.emit('empty');
+        }
       }
       else {
         logger.warn('try to delete a non-exist terminal');
@@ -113,4 +122,5 @@ class Hub {
     this.filterChain.push(new Filter(filter, condition));
   }
 }
+
 module.exports = Hub;
