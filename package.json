@@ -1,7 +1,7 @@
 {
   "name": "weex-debugger",
   "description": "weex developer tool for debugging weex app with chrome devtool",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "author": "erha19 <faterrole@gmail.com>",
   "license": "MIT",
   "main": "index.js",
@@ -79,8 +79,8 @@
   },
   "changelog": {
     "messages": [
-      "Support debugger on muticontext.",
-      "Remove useless log while using Js Debbug."
+      "Fixed issue https://github.com/weexteam/weex-toolkit/issues/366.",
+      "Remove useless `callNative` log."
     ],
     "url": "https://github.com/weexteam/weex-debugger/blob/master/README.md"
   }

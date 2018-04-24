@@ -1,6 +1,6 @@
 const Crypto = require('crypto');
 const Url = require('url');
-const Qs = require('querystring');
+const queryParser = require('querystring');
 const _memoryFileMap = {};
 class MemoryFile {
   static get (name) {
@@ -12,7 +12,7 @@ class MemoryFile {
   constructor (fileName, content) {
     const rHttpHeader = /^(https?|taobao|qap):\/\/(?!.*your_current_ip)/i;
     if (rHttpHeader.test(fileName)) {
-      const query = Qs.parse(Url.parse(fileName).query);
+      const query = queryParser.parse(Url.parse(fileName).query);
       if (query['_wx_tpl']) {
         this.url = normalize(query['_wx_tpl']);
         this.name = this.url.replace(rHttpHeader, '');
@@ -59,7 +59,7 @@ module.exports = MemoryFile;
 function normalize (url) {
   const urlObj = Url.parse(url);
   if (urlObj.query) {
-    urlObj.query = Qs.stringify(Qs.parse(urlObj.query));
+    urlObj.query = queryParser.stringify(queryParser.parse(urlObj.query));
     urlObj.search = '?' + urlObj.query;
   }
   return urlObj.format();

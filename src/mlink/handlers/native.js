@@ -1,7 +1,7 @@
 const mlink = require('../midware');
 const Router = mlink.Router;
 const DeviceManager = require('../managers/device_manager');
-const { bundleWrapper, apiWrapper } = require('../../util/wrapper');
+const { bundleWrapper, apiWrapper, transformUrlToLocalUrl} = require('../../util/wrapper');
 const MemoryFile = require('../../lib/memory_file');
 const debuggerRouter = Router.get('debugger');
 const crypto = require('../../util/crypto');
@@ -26,6 +26,7 @@ debuggerRouter.registerHandler(function (message) {
   }
   else if (payload.method === 'WxDebug.callJS' && payload.params.method === 'createInstance') {
     let code = payload.params.args[1];
+    let bundleUrl = payload.params.args[2].bundleUrl || (crypto.md5(code) + '.js');
     if (payload.params.args[2] && (payload.params.args[2]['debuggable'] === 'false' || payload.params.args[2]['debuggable'] === false)) {
       code = crypto.obfuscate(code);
     }
@@ -35,7 +36,7 @@ debuggerRouter.registerHandler(function (message) {
         bundleUrl: payload.params.args[2].bundleUrl
       }
     });
-    payload.params.sourceUrl = new MemoryFile(payload.params.args[2].bundleUrl || (crypto.md5(code) + '.js'), bundleWrapper(code)).getUrl();
+    payload.params.sourceUrl = new MemoryFile(bundleUrl, bundleWrapper(code, transformUrlToLocalUrl(bundleUrl))).getUrl();
   }
   else if (payload.method === 'WxDebug.callJS' && payload.params.method === 'createInstanceContext') {
     if (device.platform === 'iOS') {
@@ -53,7 +54,8 @@ debuggerRouter.registerHandler(function (message) {
       payload.params.dependenceUrl = '';
     }
     if (code) {
-      payload.params.sourceUrl = new MemoryFile(options.bundleUrl || (crypto.md5(code) + '.js'), bundleWrapper(code)).getUrl();
+      let bundleUrl = options.bundleUrl || (crypto.md5(code) + '.js');
+      payload.params.sourceUrl = new MemoryFile(bundleUrl, bundleWrapper(code, transformUrlToLocalUrl(bundleUrl))).getUrl();
     }
     else {
       payload.params.sourceUrl = '';
@@ -61,8 +63,8 @@ debuggerRouter.registerHandler(function (message) {
   }
   else if (payload.method === 'WxDebug.callJS' && payload.params.method === 'importScript') {
     const code = payload.params.args[1];
-    const bundleUrl = payload.params.args[2] && payload.params.args[2].bundleUrl;
-    payload.params.sourceUrl = new MemoryFile((bundleUrl || crypto.md5(code) + '.js'), bundleWrapper(code)).getUrl();
+    const bundleUrl = (payload.params.args[2] && payload.params.args[2].bundleUrl) || crypto.md5(code) + '.js';
+    payload.params.sourceUrl = new MemoryFile(bundleUrl, bundleWrapper(code, transformUrlToLocalUrl(bundleUrl))).getUrl();
   }
   else if (payload.method === 'WxDebug.importScript') {
     payload.params.sourceUrl = new MemoryFile('imported_' + crypto.md5(payload.params.source) + '.js', payload.params.source).getUrl();
