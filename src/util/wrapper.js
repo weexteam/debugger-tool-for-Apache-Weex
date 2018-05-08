@@ -7,7 +7,7 @@ const normalize = (url) => {
     urlObj.search = '?' + urlObj.query;
   }
   return urlObj.format();
-}
+};
 const bundleWrapper = (code, sourceUrl) => {
   const injectedGlobals = [
     // ES
@@ -21,7 +21,7 @@ const bundleWrapper = (code, sourceUrl) => {
   ];
   const bundlewrapper = 'function __weex_bundle_entry__(' + injectedGlobals.join(',') + '){';
   const rearRegexp = /\/\/#\s*sourceMappingURL(?!.*?\s+.)|$/;
-  const match = /^\/\/\s?{\s?"framework"\s?:\s?"(\w+)"\s?}/.exec(code);
+  const match = /^\/\/\s?{\s?"framework"\s?:\s?"(\w+)"\s?}/.exec(code.trim());
   let anno = '';
   if (match) {
     anno = '$$frameworkFlag["' + (sourceUrl || '@') + '"]="' + match[1] + '"\n';
@@ -60,7 +60,7 @@ const transformUrlToLocalUrl = (sourceURl) => {
     bundleUrl = bundleUrl.substring(0, bundleUrl.length - 1);
   }
   return '/source/' + bundleUrl;
-}
+};
 module.exports = {
   bundleWrapper,
   apiWrapper,

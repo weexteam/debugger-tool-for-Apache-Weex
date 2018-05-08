@@ -3,7 +3,7 @@ var timer;
 var RuntimeSocket
 var BrowserChannelId
 var EntrySocket = new WebsocketClient('ws://' + location.host + '/page/entry');
-
+EntrySocket.send(0x01);//set deamon socket
 EntrySocket.on('WxDebug.startDebugger', function (message) {
   if (!RuntimeSocket) {
     location.href = `http://${location.host}/runtime.html?channelId=${message.params}`

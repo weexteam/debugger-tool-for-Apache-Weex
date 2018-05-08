@@ -5,11 +5,15 @@ const { logger } = require('../../../util/logger');
 const _hubInstances = {};
 const Emitter = require('./emitter');
 class Hub extends Emitter {
-  constructor (id) {
+  constructor (id, { idleTimeout } = {}) {
     super();
     const self = this;
     if (_hubInstances[id]) {
+      _hubInstances[id].idleTimeout = idleTimeout;
       return _hubInstances[id];
+    }
+    else {
+      this.idleTimeout = idleTimeout;
     }
     _hubInstances[id] = this;
     this.id = id;
@@ -49,7 +53,8 @@ class Hub extends Emitter {
   }
 
   empty () {
-    return Object.keys(this.terminalMap).length === 0;
+    const keys = Object.keys(this.terminalMap);
+    return keys.length === 0 || (keys.length === 1 && this.terminalMap[keys[0]].isDeamon);
   }
 
   setChannel (terminalId, channelId) {
@@ -73,7 +78,13 @@ class Hub extends Emitter {
         });
         terminal = null;
         if (this.empty()) {
-          this.emit('empty');
+          if (this.idleTimeout > 0) {
+            this.idleTimer = setTimeout(() => {
+              if (this.empty()) {
+                this.emit('idle', this);
+              }
+            }, Math.max(10000, this.idleTimeout));
+          }
         }
       }
       else {
@@ -81,7 +92,14 @@ class Hub extends Emitter {
       }
     });
     terminal.on('message', (message) => {
-      this.send(new Message(message, this.id, terminal.id, terminal.channelId));
+      if (typeof message === 'number') {
+        if (message === 0x01) {
+          terminal.isDeamon = true;
+        }
+      }
+      else {
+        this.send(new Message(message, this.id, terminal.id, terminal.channelId));
+      }
     });
     this.router._event({
       type: Router.Event.TERMINAL_JOINED,
@@ -90,6 +108,7 @@ class Hub extends Emitter {
       channelId: terminal.channelId,
       forced: forced
     });
+    clearTimeout(this.idleTimer);
   }
 
   broadcast (message) {

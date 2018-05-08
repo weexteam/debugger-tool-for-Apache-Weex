@@ -43,6 +43,10 @@ function connect() {
             if (channelId === message.params) {
                 sessionStorage.removeItem('channelId')
                 sessionStorage.removeItem('connectUrl')
+
+                websocket.close()
+                //跳转走就不要再走重试逻辑了
+                websocket.dead=true
                 location.href = '/debug.html?channelId=' + message.params
             }
         }
@@ -56,10 +60,12 @@ function connect() {
     websocket.onclose = function () {
         sessionStorage.removeItem('channelId')
         sessionStorage.removeItem('connectUrl')
-        document.getElementById('qrcode').innerHTML = ''
-        $('.qrcode-wrap').className += '  loading-state'
-        if (maxReconnectCount-- > 0) {
-            setTimeout(connect, 3000)
+        if(!websocket.dead) {
+            document.getElementById('qrcode').innerHTML = ''
+            $('.qrcode-wrap').className += '  loading-state'
+            if (maxReconnectCount-- > 0) {
+                setTimeout(connect, 3000)
+            }
         }
     }
 }

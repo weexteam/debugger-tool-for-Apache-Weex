@@ -33,7 +33,8 @@ program
 .option('--telemetry', 'upload usage data to help us improve the toolkit')
 .option('--verbose', 'display all logs of debugger server')
 .option('--loglevel [loglevel]', 'set log level silent|error|warn|info|log|debug', 'error')
-.option('--remotedebugport [remotedebugport]', 'set the remote debug port', config.remoteDebugPort);
+.option('--remotedebugport [remotedebugport]', 'set the remote debug port', config.remoteDebugPort)
+.option('--chromepath [chromepath]','set headless chrome path');
 
 
 // Supporting add the file / directory parameter after the command.
@@ -80,6 +81,9 @@ if (program.verbose) {
 
 if (program.remotedebugport) {
   config.remoteDebugPort = program.remotedebugport;
+}
+if(program.chromepath){
+  config.chromePath=program.chromepath;
 }
 
 // Get the local environment

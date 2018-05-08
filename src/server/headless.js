@@ -1,14 +1,19 @@
 const puppeteer = require('puppeteer');
 let page;
 let browser = null;
+const config = require('../lib/config');
 const {
   logger
 } = require('../util/logger');
 
 exports.launchHeadless = async (host, remotePort) => {
-  browser = await puppeteer.launch({
+  const options = {
     args: [`--remote-debugging-port=${remotePort}`, `--disable-gpu`]
-  });
+  };
+  if (config.chromePath) {
+    options.executablePath = config.chromePath;
+  }
+  browser = await puppeteer.launch(options);
   logger.verbose(`Headless has been launched`);
   page = await browser.newPage();
   await page.goto(`http://${host}/runtime.html`);

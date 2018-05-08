@@ -63,8 +63,8 @@ exports.startServer = function (ip, port) {
       message += ' ' + chalk.red('(on port ' + inUse.open + ',' + (' because ' + inUse.old + ' is already in use)'));
     }
     message += '\n\n';
-    message += '- ' + chalk.bold('Websocket Address For Native: ') + ' ws://' + ip + ':' + port + '/debugProxy/native\n';
-    message += '- ' + chalk.bold('Debug Server:                 ') + ' http://' + ip + ':' + port + '\n';
+    message += '- ' + chalk.bold('Websocket Address For Native: ') + ' [>ws://' + ip + ':' + port + '/debugProxy/native<]\n';
+    message += '- ' + chalk.bold('Debug Server:                 ') + ' [>http://' + ip + ':' + port + '<]\n';
     debugServer.start(port, function () {
       logger.log(boxen(message, {
         padding: 1,
