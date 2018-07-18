@@ -1,4 +1,6 @@
-var channelId = new URLSearchParams(location.search).get('channelId');
+var searchParams = new URLSearchParams(location.search);
+var channelId = searchParams.get('channelId');
+var fromUrl = searchParams.get('from');
 var screencastParams = null;
 var isProphetPageShowing = false;
 var $help = $('.help')
@@ -143,7 +145,7 @@ websocket.on('WxDebug.pushDebuggerInfo', function (event) {
         }
       })
     }
-    
+
     initJsbundleQRcode(event.params.bundles);
     if (isProphetPageShowing) {
       websocket.send({
@@ -235,6 +237,7 @@ function initDevtoolIframe() {
   $('#inspector').src = `/inspector/inspector.html?ws=${location.host}/debugProxy/inspector/${channelId}&remoteFrontend=1`
   var shouldReloadApp = true
   $('#inspector').onload = function () {
+    $('.loading-ctn').style.display = 'none';
     if (!shouldReloadApp && $('#remote_debug').checked) {
       websocket.send({
         method: 'WxDebug.reload'
@@ -259,6 +262,20 @@ function initTips() {
   new AnchorTips(document.querySelectorAll('.line.short>span:nth-child(1)')[1], AnchorTips.LEFT_BOTTOM, generatei18nTips('NETWORK_TIP'), $('.tips-mask'))
   new AnchorTips(document.querySelectorAll('.line.middle>span:nth-child(1)')[0], AnchorTips.RIGHT, generatei18nTips('LOGLEVEL_TIP'), $('.tips-mask'))
   new AnchorTips(document.querySelectorAll('.line.middle>span:nth-child(1)')[1], AnchorTips.RIGHT_BOTTOM, generatei18nTips('ELEMENT_MODE_TIP'), $('.tips-mask'))
+}
+
+function handleToIndexPage() {
+  if (!fromUrl) {
+    return
+  }
+  var logoEl = document.querySelector('.logo')
+  logoEl.addEventListener('click', (e) => {
+    e.preventDefault()
+    if (fromUrl.indexOf('file://') === 0) {
+      return window.history.back()
+    }
+    window.location.href = fromUrl
+  });
 }
 
 function init() {
@@ -300,5 +317,6 @@ function init() {
     localStorage.setItem('shouldShowStepTips', false)
   }
   initTips();
+  handleToIndexPage();
 }
 init();
