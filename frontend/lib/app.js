@@ -2,14 +2,20 @@ var maxReconnectCount = 10
 var websocket
 var channelId
 var connectUrl
-
+var wsBase='',httpBase='',match;
+match=/\/debug_proxy_http_(\d+)/.exec(document.baseURI);
+if(match){
+    wsBase='/debug_proxy_ws_'+match[1];
+    httpBase=match[0];
+}
 function send(message) {
     if (websocket && websocket.readyState === WebSocket.OPEN) {
         websocket.send(JSON.stringify(message))
     }
 }
 function connect() {
-    websocket = new WebSocket('ws://' + location.host + '/page/entry')
+    var wsSchema=location.protocol=='http:'?'ws://':'wss://'
+    websocket = new WebSocket(wsSchema + location.host +wsBase+ '/page/entry')
 
 
     if (location.hash === '#new') {
@@ -47,7 +53,7 @@ function connect() {
                 websocket.close()
                 //跳转走就不要再走重试逻辑了
                 websocket.dead=true
-                location.href = '/debug.html?channelId=' + message.params
+                location.href = httpBase+'/debug.html?channelId=' + message.params
             }
         }
         else if (message.method == 'WxDebug.prompt'&&channelId === message.params.channelId) {
@@ -73,7 +79,7 @@ function connect() {
 function createQRCode(channelId, connectUrl) {
     document.getElementById('qrcode').innerHTML = ''
     new QRCode(document.getElementById('qrcode'), {
-        text: connectUrl || `http:\/\/${location.host}/index.html?_wx_devtool=ws:\/\/${location.host}/debugProxy/native/` + channelId,
+        text:  `${location.protocol}\/\/${location.host+httpBase}/devtool_fake.html?_wx_devtool=ws:\/\/${location.host+wsBase}/debugProxy/native/` + channelId,
         width: 200,
         height: 200,
         colorDark: "#000000",

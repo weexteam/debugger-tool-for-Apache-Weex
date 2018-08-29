@@ -1,6 +1,17 @@
 ## Changelog
 All notable changes to this project will be documented in this file.
-
+### yk.10 
+对/debugger/proxy ws增加30秒的心跳 防止nginx转发断线
+### yk.9
+更改 调试入口码index.html改回devtool_fake.html（优酷路由只认devtool_fake.html）
+### yk.8
+inspector.html增加wss的支持 本次不得已更改了chrome inspector代码。后续更新inspector需重新改动
+### yk.7
+自适应选择 ws://和wss:// 砍掉connectUrl
+### yk.6
+增加--ngxproxxy 把所有非标端口代理到80端口 进行path转写 并在页面里加入base /debug_proxy_http_${port}
+### yk.5
+增加空闲自动退出机制
 ### 1.0.11
 #### Fixed
   - Fixed [weex-toolkit/issues/366](https://github.com/weexteam/weex-toolkit/issues/366)

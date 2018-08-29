@@ -20,7 +20,12 @@ if (BrowserChannelId) {
 }
 
 function connect(channelId) {
-  RuntimeSocket = new WebsocketClient('ws://' + window.location.host + '/debugProxy/runtime/' + channelId);
+    var base='',match;
+    match=/\/debug_proxy_http_(\d+)/.exec(document.baseURI);
+    if(match){
+        base='/debug_proxy_ws_'+match[1];
+    }
+  RuntimeSocket = new WebsocketClient('ws://' + window.location.host+base + '/debugProxy/runtime/' + channelId);
   RuntimeSocket.on('*', function (message) {
     if (worker) {
       worker.postMessage(message);

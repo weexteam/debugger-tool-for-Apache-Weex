@@ -32,6 +32,7 @@ program
 .option('--min', 'minimize the jsbundle')
 .option('--telemetry', 'upload usage data to help us improve the toolkit')
 .option('--verbose', 'display all logs of debugger server')
+.option('--ngxproxy', 'enable ngx port proxy')
 .option('--loglevel [loglevel]', 'set log level silent|error|warn|info|log|debug', 'error')
 .option('--remotedebugport [remotedebugport]', 'set the remote debug port', config.remoteDebugPort)
 .option('--chromepath [chromepath]','set headless chrome path');
@@ -67,7 +68,9 @@ if (program.host && !hosts.isValidLocalHost(program.host)) {
 if (program.telemetry) {
   hook.allowTarck()
 }
-
+if(program.ngxproxy){
+  config.ngxProxy=true
+}
 if (program.loglevel) {
   program.loglevel = program.loglevel.toLowercase && program.loglevel.toLowercase()
   if(LOGLEVELS.indexOf(program.loglevel) > -1) {

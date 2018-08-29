@@ -358,10 +358,14 @@ SDK.TargetManager = class extends Common.Object {
    * @return {!InspectorBackendClass.Connection}
    */
   _createMainConnection(params) {
+    //todo GS_MODIFY
     if (Runtime.queryParam('ws')) {
       var ws = 'ws://' + Runtime.queryParam('ws');
       this._mainConnection = new SDK.WebSocketConnection(ws, this._webSocketConnectionLostCallback, params);
-    } else if (InspectorFrontendHost.isHostedMode()) {
+    } else if(Runtime.queryParam('wss')){
+        var ws = 'wss://' + Runtime.queryParam('wss');
+        this._mainConnection = new SDK.WebSocketConnection(ws, this._webSocketConnectionLostCallback, params);
+    }else if (InspectorFrontendHost.isHostedMode()) {
       this._mainConnection = new SDK.StubConnection(params);
     } else {
       this._mainConnection = new SDK.MainConnection(params);

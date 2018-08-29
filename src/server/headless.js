@@ -8,7 +8,7 @@ const {
 
 exports.launchHeadless = async (host, remotePort) => {
   const options = {
-    args: [`--remote-debugging-port=${remotePort}`, `--disable-gpu`]
+    args: ['--no-sandbox', `--remote-debugging-port=${remotePort}`, `--disable-gpu`]
   };
   if (config.chromePath) {
     options.executablePath = config.chromePath;

@@ -13,7 +13,14 @@ var hash = window.location.hash || '#debugger';
 var shouldShowStepTips = localStorage.getItem('shouldShowStepTips')
 var timeout
 document.title = document.title + channelId
-websocket = new WebsocketClient('ws://' + location.host + '/debugProxy/debugger/' + channelId);
+var wsBase='',httpBase='',match;
+match=/\/debug_proxy_http_(\d+)/.exec(document.baseURI);
+if(match){
+    wsBase='/debug_proxy_ws_'+match[1];
+    httpBase=match[0];
+}
+var wsSchema=location.protocol=='http:'?'ws://':'wss://'
+websocket = new WebsocketClient(wsSchema + location.host +wsBase+ '/debugProxy/debugger/' + channelId);
 websocket.on('socketOpened', () => {
   var toProphetPage = function () {
     $switchBtn.innerHTML = 'Debugger >>';
@@ -232,7 +239,7 @@ function initJsbundleQRcode (bundles) {
     }
 }
 function initDevtoolIframe() {
-  $('#inspector').src = `/inspector/inspector.html?ws=${location.host}/debugProxy/inspector/${channelId}&remoteFrontend=1`
+  $('#inspector').src = httpBase+`/inspector/inspector.html?${location.protocol=='http:'?'ws':'wss'}=${location.host+wsBase}/debugProxy/inspector/${channelId}&remoteFrontend=1`
   var shouldReloadApp = true
   $('#inspector').onload = function () {
     if (!shouldReloadApp && $('#remote_debug').checked) {

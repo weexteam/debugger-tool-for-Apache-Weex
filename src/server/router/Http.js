@@ -3,8 +3,12 @@ const MemoryFile = require('../../lib/memory_file');
 const mlink = require('../../mlink/midware');
 const DeviceManager = require('../../mlink/managers/device_manager');
 const URL = require('url');
+const util = require('util');
 const config = require('../../lib/config');
+const fs = require('fs');
+const Path = require('path');
 const { bundleWrapper } = require('../../util/wrapper');
+
 const protocols = {
   'http:': require('http'),
   'https:': require('https')
@@ -89,6 +93,13 @@ httpRouter.get('/source/*', function * (next) {
 let syncApiIndex = 0;
 const SyncTerminal = mlink.Terminal.SyncTerminal;
 const syncHub = mlink.Hub.get('sync');
+
+httpRouter.get('/reloadPage', function * () {
+  mlink.Router.get('debugger').pushMessage('proxy.native', {
+    method: 'WxDebug.reload'
+  });
+  this.response.body = 'ok';
+});
 httpRouter.post('/syncApi', function * () {
   const idx = syncApiIndex++;
   const payload = this.request.body;
@@ -108,5 +119,20 @@ httpRouter.post('/syncApi', function * () {
     this.response.status = 500;
     // this.response.body = JSON.stringify({ error: 'device not found!' });
   }
+});
+
+httpRouter.get('/', function * () {
+  let file = yield util.promisify(fs.readFile)(Path.join(__dirname, '../../../frontend/index.html'));
+  file = file.toString().replace(/<!--#{PROXY_BASE}-->/, config.ngxProxy ? '<base href="/debug_proxy_http_' + config.port + '/" />' : '');
+  this.response.status = 200;
+  this.type = 'text/html';
+  this.response.body = file;
+});
+httpRouter.get('/debug.html', function * () {
+  let file = yield util.promisify(fs.readFile)(Path.join(__dirname, '../../../frontend/debug.html'));
+  file = file.toString().replace(/<!--#{PROXY_BASE}-->/, config.ngxProxy ? '<base href="/debug_proxy_http_' + config.port + '/" />' : '');
+  this.response.status = 200;
+  this.type = 'text/html';
+  this.response.body = file;
 });
 module.exports = httpRouter;
