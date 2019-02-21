@@ -1,6 +1,7 @@
 const path = require("path");
 const chalk = require("chalk");
 const boxen = require("boxen");
+const mdns = require('mdns');
 
 const detect = require("detect-port");
 const launcher = require("./util/launcher");
@@ -43,9 +44,19 @@ function resolveConnectUrl(config) {
   );
 }
 
-exports.startServerAndLaunch = function(ip, port, manual, cb) {
+exports.startServerAndLaunch = function(config, cb) {
+  const {ip, port, manual, bonjour, CHANNELID} = config;
   this.startServer(ip, port).then(() => {
     cb && cb();
+    if (bonjour) {
+      logger.info('Broadcasting IP and port via Bonjour');
+
+      // the value 0x120000 of flags option represents enableing kDNSServiceFlagsIncludeAWDL and kDNSServiceFlagsIncludeP2P,
+      // documentation can be found at https://developer.apple.com/documentation/dnssd/1823436-anonymous?language=objc.
+      // This option enables bonjour service broadcasting via AWDL and Bluetooth without DNS multicast which is disabled in some ad-hoc networks.
+      const ad = mdns.createAdvertisement(mdns.tcp('weex'), parseInt(port), {flags: 0x120000, txtRecord: {ip: ip, channelId: CHANNELID}});
+      ad.start();
+    }
     if (!manual) this.launch(ip, port);
   });
 };
@@ -152,7 +163,7 @@ exports.start = function(target, config, cb) {
       config.port
     );
     config.bundleUrls = bundleUrls;
-    this.startServerAndLaunch(config.ip, config.port, config.manual, cb);
+    this.startServerAndLaunch(config, cb);
   } else if (target) {
     const filePath = path.resolve(target);
     let shouldReloadDebugger = false;
@@ -181,12 +192,7 @@ exports.start = function(target, config, cb) {
               config.port
             );
             config.BUNDLE_URLS = bundleUrls;
-            this.startServerAndLaunch(
-              config.ip,
-              config.port,
-              config.manual,
-              cb
-            );
+            this.startServerAndLaunch(config, cb);
           } else {
             exports.reload();
           }
@@ -194,6 +200,6 @@ exports.start = function(target, config, cb) {
       }
     );
   } else {
-    this.startServerAndLaunch(config.ip, config.port, config.manual, cb);
+    this.startServerAndLaunch(config, cb);
   }
 };

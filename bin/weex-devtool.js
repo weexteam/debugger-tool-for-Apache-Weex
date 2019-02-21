@@ -15,6 +15,7 @@ const devtool = require('../lib/index');
 const env = require('../lib/util/env');
 const hosts = require('../lib/util/hosts');
 const headless = require('../lib/server/headless');
+const uuid = require("uuid");
 const {
   logger
 } =require('../lib/util')
@@ -31,7 +32,8 @@ program
 .option('--telemetry', 'upload usage data to help us improve the toolkit')
 .option('--verbose', 'display all logs of debugger server')
 .option('--loglevel [loglevel]', 'set log level silent|error|warn|info|log|debug', 'error')
-.option('--remotedebugport [remotedebugport]', 'set the remote debug port', config.REMOTE_DEBUG_PORT);
+.option('--remotedebugport [remotedebugport]', 'set the remote debug port', config.REMOTE_DEBUG_PORT)
+.option('--bonjour', 'Brodcast the IP and port of this computer via Bonjour');
 
 
 // Supporting add the file / directory parameter after the command.
@@ -76,9 +78,7 @@ if (program.remotedebugport) {
   config.REMOTE_DEBUG_PORT = program.remotedebugport;
 }
 
-if (program.channelid) {
-  config.CHANNELID = program.channelid
-}
+config.CHANNELID = program.channelid || uuid();
 
 // Get the local environment
 env.getVersionOf('weex', (v) => {
@@ -96,6 +96,7 @@ config.ip = program.host || ip.address();
 config.manual = program.manual;
 config.min = program.min;
 config.ext = program.ext || 'vue';
+config.bonjour = program.bonjour;
 
 process.on('uncaughtException', (err) => {
   try {

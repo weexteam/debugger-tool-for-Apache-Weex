@@ -58,6 +58,7 @@
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
     "koa-websocket": "^5.0.1",
+    "mdns": "^2.4.0",
     "mkdirp": "^0.5.1",
     "node-simctl": "^3.11.1",
     "node-watch": "^0.3.5",
