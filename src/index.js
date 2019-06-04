@@ -142,6 +142,13 @@ exports.refresh = function () {
   })
 };
 
+exports.renderPage = function (url) {
+  Router.get("debugger").pushMessage("proxy.native", {
+    method: "WxDebug.renderPage",
+    params: {url: url}
+  })
+};
+
 exports.start = function(target, config, cb) {
   resolveConnectUrl(config);
   if (isUrl(target)) {

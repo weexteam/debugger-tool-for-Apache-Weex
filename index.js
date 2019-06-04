@@ -29,7 +29,8 @@ const startServerAndLaunchDevtool = (entry, options, cb) => {
 const api = {
   startServerAndLaunchDevtool: startServerAndLaunchDevtool,
   reload: devtool.reload,
-  refresh: devtool.refresh
+  refresh: devtool.refresh,
+  renderPage: devtool.renderPage
 };
 
 module.exports = {
